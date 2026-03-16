@@ -20,6 +20,14 @@ export function CampaignsList() {
   };
 
   if (isLoading) return <Spinner />;
+  if (isError) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-500 font-bold">Backend Connection Failed</p>
+        <p className="text-slate-500 text-sm">{error?.message || "Check if api-server is running"}</p>
+      </div>
+    );
+  }
 
   const filtered = (Array.isArray(campaigns) ? campaigns : []).filter(c => 
   c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
