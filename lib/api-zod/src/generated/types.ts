@@ -1,13 +1,19 @@
 import { z } from "zod";
 import * as schemas from "./api.ts";
 
-// This exports the TypeScript types based on your Zod schemas
-export type ApiSchemas = typeof schemas;
+// Automatically extract TypeScript types from your Zod schemas
+export type HealthCheckResponse = z.infer<typeof schemas.HealthCheckResponse>;
+export type ListCampaignsResponse = z.infer<typeof schemas.ListCampaignsResponse>;
+export type CreateCampaignBody = z.infer<typeof schemas.CreateCampaignBody>;
+export type GetCampaignResponse = z.infer<typeof schemas.GetCampaignResponse>;
+export type DeleteCampaignResponse = z.infer<typeof schemas.DeleteCampaignResponse>;
+export type GetCampaignResultsResponse = z.infer<typeof schemas.GetCampaignResultsResponse>;
+export type GetCampaignReportResponse = z.infer<typeof schemas.GetCampaignReportResponse>;
 
-// Example of common types usually found here
-export type SuccessResponse = {
+// Generic API response types
+export type SuccessResponse<T> = {
   success: true;
-  data: any;
+  data: T;
 };
 
 export type ErrorResponse = {
