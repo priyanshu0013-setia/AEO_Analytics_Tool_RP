@@ -18,7 +18,6 @@ async function build() {
       'cookie-parser',
       'drizzle-orm',
       '@workspace/db',
-      '@workspace/api-zod'
     ],
     sourcemap: true,
   });
