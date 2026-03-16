@@ -6,7 +6,7 @@ services:
     plan: free
     buildCommand: |
       npm install -g pnpm &&
-      pnpm install --frozen-lockfile &&
+      pnpm install --no-frozen-lockfile &&
       pnpm --filter @workspace/aeo-dashboard run build &&
       pnpm --filter @workspace/api-server run build
     startCommand: NODE_ENV=production node artifacts/api-server/dist/index.cjs
