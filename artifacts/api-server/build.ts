@@ -11,6 +11,8 @@ async function build() {
     outfile: 'dist/index.cjs',
     external: [
       ...builtinModules,
+      'pg',
+      'express',
       'express',
       'cors',
       'cookie-parser',
