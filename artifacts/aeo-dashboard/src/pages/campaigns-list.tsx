@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function CampaignsList() {
-  const { data: campaigns, isLoading } = useListCampaigns();
+  const { data: campaigns, isLoading, isError, error } = useListCampaigns();
   const { mutateAsync: deleteCampaign, isPending: isDeleting } = useDeleteCampaign();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
