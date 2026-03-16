@@ -50,7 +50,7 @@ export function RunCampaign() {
           <div className="text-emerald-400 mb-4">$ initializing AEO engine...</div>
           <div className="text-slate-500 mb-4">Target: {campaign.targetUrl} | Competitors: {campaign.competitorUrls.length}</div>
           
-          {logs.map((log, i) => (
+          {(Array.isArray(logs) ? logs : []).map((log, i) => (
             <div key={i} className="mb-1 flex items-start">
               <span className="text-slate-600 mr-3 shrink-0">{`[${new Date().toISOString().split('T')[1].slice(0,8)}]`}</span>
               <span className={
