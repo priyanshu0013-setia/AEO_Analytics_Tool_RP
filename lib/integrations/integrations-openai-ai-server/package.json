@@ -1,12 +1,12 @@
 {
   "name": "@workspace/integrations-openai-ai-server",
-  "version": "4.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "openai": "^5.12.2"
+    "openai": "^4.85.4"
   }
 }
