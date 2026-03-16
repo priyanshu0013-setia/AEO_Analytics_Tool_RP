@@ -21,10 +21,10 @@ export function CampaignsList() {
 
   if (isLoading) return <Spinner />;
 
-  const filtered = campaigns?.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    c.targetUrl.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filtered = (Array.isArray(campaigns) ? campaigns : []).filter(c => 
+  c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  c.targetUrl.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
