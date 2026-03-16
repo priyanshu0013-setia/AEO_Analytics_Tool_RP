@@ -9,4 +9,4 @@ if (!apiKey) {
 }
 
 // Matches usage in api-server: ai.models.generateContent(...)
-export const ai = new GoogleGenAI({ apiKey });
+export const ai = new GoogleGenerativeAI(apiKey);
