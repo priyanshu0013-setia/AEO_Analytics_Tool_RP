@@ -58,19 +58,25 @@ Button.displayName = "Button";
 
 // --- Input ---
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, ...props }, ref) => (
-    <input
-      ref={ref}
-      className={cn(
-        "flex h-12 w-full rounded-xl border-2 border-border bg-background px-4 py-2 text-sm ring-offset-background",
-        "placeholder:text-muted-foreground transition-all duration-200",
-        "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    />
-  )
+  ({ className, id, ...props }, ref) => {
+    const defaultId = useId(); // Generates a unique ID like :r0:
+    const inputId = id || defaultId; // Use the passed ID, or fallback to the generated one
+
+    return (
+      <input
+        ref={ref}
+        id={inputId}
+        className={cn(
+          "flex h-12 w-full rounded-xl border-2 border-border bg-background px-4 py-2 text-sm ring-offset-background",
+          "placeholder:text-muted-foreground transition-all duration-200",
+          "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
 );
 Input.displayName = "Input";
 
