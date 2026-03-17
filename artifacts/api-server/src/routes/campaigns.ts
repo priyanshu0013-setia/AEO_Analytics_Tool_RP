@@ -87,8 +87,13 @@ router.post("/:id/run", async (req, res) => {
 
     let completed = 0;
     const batchSize = 3;
+    const BATCH_DELAY_MS = 1500;
 
     for (let i = 0; i < allQueries.length; i += batchSize) {
+      if (i > 0) {
+        const jitter = Math.random() * 500;
+        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS + jitter));
+      }
       const batch = allQueries.slice(i, i + batchSize);
       await Promise.all(
         batch.map(async (query) => {
