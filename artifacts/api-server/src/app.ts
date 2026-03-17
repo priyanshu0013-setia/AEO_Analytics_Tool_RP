@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "production") {
   const staticDir = path.join(process.cwd(), "artifacts/aeo-dashboard/dist");
   if (fs.existsSync(staticDir)) {
     app.use(express.static(staticDir));
-    app.get("*", (_req, res) => {
+    app.get(/^(?!\/api).*$/, (_req, res) => {
       res.sendFile(path.join(staticDir, "index.html"));
     });
   }
