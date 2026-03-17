@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 
 if (process.env.NODE_ENV === "production") {
-  const staticDir = path.join(process.cwd(), "artifacts/aeo-dashboard/dist/public");
+  const staticDir = path.join(process.cwd(), "artifacts/aeo-dashboard/dist");
   if (fs.existsSync(staticDir)) {
     app.use(express.static(staticDir));
     app.get("*", (_req, res) => {
