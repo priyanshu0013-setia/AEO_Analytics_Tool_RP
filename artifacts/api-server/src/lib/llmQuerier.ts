@@ -46,12 +46,13 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
 
 async function queryGemini(query: string): Promise<LlmResult> {
   try {
-    const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + query }] }],
-      config: { maxOutputTokens: 2048 },
-    });
-    return { llm: "gemini", response: result.text ?? "" };
+    if (!ai) {
+      return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured" };
+    }
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(SYSTEM_PROMPT + "\n\n" + query);
+    const text = result.response.text();
+    return { llm: "gemini", response: text };
   } catch (err) {
     console.error("Gemini query failed:", err);
     return { llm: "gemini", response: "", error: String(err) };

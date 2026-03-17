@@ -3,10 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
-  throw new Error(
-    "GEMINI_API_KEY must be set (Render env var).",
-  );
+  console.warn("GEMINI_API_KEY is not set - Gemini queries will be skipped.");
 }
 
-// Matches usage in api-server: ai.models.generateContent(...)
-export const ai = new GoogleGenerativeAI(apiKey);
+export const ai = apiKey ? new GoogleGenerativeAI(apiKey) : null;
