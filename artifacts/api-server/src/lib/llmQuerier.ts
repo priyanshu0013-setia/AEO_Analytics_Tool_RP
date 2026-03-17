@@ -13,7 +13,7 @@ export interface LlmResult {
 async function queryOpenAI(query: string): Promise<LlmResult> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5-mini",
+      model: "gpt-4o-mini",
       max_completion_tokens: 2048,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -30,7 +30,7 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
 async function queryAnthropic(query: string): Promise<LlmResult> {
   try {
     const message = await anthropic.messages.create({
-      model: "claude-haiku-4-5",
+      model: "claude-3-5-haiku-latest",
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: query }],
@@ -46,12 +46,13 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
 
 async function queryGemini(query: string): Promise<LlmResult> {
   try {
-    const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + query }] }],
-      config: { maxOutputTokens: 2048 },
-    });
-    return { llm: "gemini", response: result.text ?? "" };
+    if (!ai) {
+      return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured" };
+    }
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(SYSTEM_PROMPT + "\n\n" + query);
+    const text = result.response.text();
+    return { llm: "gemini", response: text };
   } catch (err) {
     console.error("Gemini query failed:", err);
     return { llm: "gemini", response: "", error: String(err) };
