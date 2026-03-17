@@ -41,7 +41,8 @@ const ChartContainer = React.forwardRef<
     >["children"]
   }
 >(({ id, className, children, config, ...props }, ref) => {
-  const uniqueId = React.useId()
+  const uniqueId =
+  (React as any).useId?.() ?? `id-${Math.random().toString(36).slice(2)}`
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
 
   return (
