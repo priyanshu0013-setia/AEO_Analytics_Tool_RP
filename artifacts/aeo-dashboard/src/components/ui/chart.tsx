@@ -41,9 +41,10 @@ const ChartContainer = React.forwardRef<
     >["children"]
   }
 >(({ id, className, children, config, ...props }, ref) => {
-  const uniqueId =
-  (React as unknown as { useId?: () => string }).useId?.() ??
-  `id-${Math.random().toString(36).slice(2)}`
+  const uniqueId = React.useMemo(
+  () => `id-${Math.random().toString(36).slice(2)}`,
+  [],
+  )
 
   return (
     <ChartContext.Provider value={{ config }}>
