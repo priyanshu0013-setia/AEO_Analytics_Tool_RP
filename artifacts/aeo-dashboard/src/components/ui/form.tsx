@@ -74,10 +74,10 @@ const FormItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const id =
-  (React as unknown as { useId?: () => string }).useId?.() ??
-  `id-${Math.random().toString(36).slice(2)}`
-
+  const id = React.useMemo(
+  () => `id-${Math.random().toString(36).slice(2)}`,
+  [],
+  )
   return (
     <FormItemContext.Provider value={{ id }}>
       <div ref={ref} className={cn("space-y-2", className)} {...props} />
