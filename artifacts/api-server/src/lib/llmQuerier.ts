@@ -13,7 +13,7 @@ export interface LlmResult {
 async function queryOpenAI(query: string): Promise<LlmResult> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5-mini",
+      model: "gpt-4o-mini",
       max_completion_tokens: 2048,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -30,7 +30,7 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
 async function queryAnthropic(query: string): Promise<LlmResult> {
   try {
     const message = await anthropic.messages.create({
-      model: "claude-haiku-4-5",
+      model: "claude-3-5-haiku-latest",
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: query }],
