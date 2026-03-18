@@ -1,4 +1,4 @@
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { ai } from "@workspace/integrations-gemini-ai";
 
 export async function generateQueryVariations(seedQuery: string, count = 7): Promise<string[]> {
   const prompt = `You are an expert at understanding how users search for information using AI assistants like ChatGPT, Claude, and Gemini.
@@ -10,14 +10,15 @@ Seed query: "${seedQuery}"
 
 Generate ${count} variations:`;
 
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_completion_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
-    });
+  if (!ai) {
+    console.error("Query generation failed: GEMINI_API_KEY is not configured");
+    return [seedQuery];
+  }
 
-    const content = response.choices[0]?.message?.content ?? "";
+  try {
+    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const result = await model.generateContent(prompt);
+    const content = result.response.text();
     const variations = content
       .split("\n")
       .map((l) => l.trim())
