@@ -3,10 +3,10 @@ import OpenAI from "openai";
 const rawKey = process.env.OPENAI_API_KEY;
 
 function isValidOpenAIKey(key: string | undefined): key is string {
-  return typeof key === "string" && key.trim().startsWith("sk-") && key.trim().length > 20;
+  return typeof key === "string" && key.startsWith("sk-") && key.length > 20;
 }
 
-const apiKey = isValidOpenAIKey(rawKey) ? rawKey.trim() : undefined;
+const apiKey = rawKey ? (isValidOpenAIKey(rawKey.trim()) ? rawKey.trim() : undefined) : undefined;
 
 if (!rawKey) {
   console.warn("OPENAI_API_KEY is not set - OpenAI queries will be skipped.");

@@ -3,10 +3,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const rawKey = process.env.GEMINI_API_KEY;
 
 function isValidGeminiKey(key: string | undefined): key is string {
-  return typeof key === "string" && key.trim().startsWith("AIza") && key.trim().length > 20;
+  return typeof key === "string" && key.startsWith("AIza") && key.length > 20;
 }
 
-const apiKey = isValidGeminiKey(rawKey) ? rawKey.trim() : undefined;
+const apiKey = rawKey ? (isValidGeminiKey(rawKey.trim()) ? rawKey.trim() : undefined) : undefined;
 
 if (!rawKey) {
   console.warn("GEMINI_API_KEY is not set - Gemini queries will be skipped.");

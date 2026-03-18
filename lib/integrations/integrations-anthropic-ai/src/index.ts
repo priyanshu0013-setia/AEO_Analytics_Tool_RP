@@ -3,10 +3,10 @@ import Anthropic from "@anthropic-ai/sdk";
 const rawKey = process.env.ANTHROPIC_API_KEY;
 
 function isValidAnthropicKey(key: string | undefined): key is string {
-  return typeof key === "string" && key.trim().startsWith("sk-ant-") && key.trim().length > 20;
+  return typeof key === "string" && key.startsWith("sk-ant-") && key.length > 20;
 }
 
-const apiKey = isValidAnthropicKey(rawKey) ? rawKey.trim() : undefined;
+const apiKey = rawKey ? (isValidAnthropicKey(rawKey.trim()) ? rawKey.trim() : undefined) : undefined;
 
 if (!rawKey) {
   console.warn("ANTHROPIC_API_KEY is not set - Anthropic queries will be skipped.");
