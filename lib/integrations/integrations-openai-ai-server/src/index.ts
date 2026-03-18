@@ -3,9 +3,7 @@ import OpenAI from "openai";
 const apiKey = process.env.OPENAI_API_KEY;
 
 if (!apiKey) {
-  throw new Error(
-    "OPENAI_API_KEY must be set (Render env var).",
-  );
+  console.warn("OPENAI_API_KEY is not set - OpenAI queries will be skipped.");
 }
 
-export const openai = new OpenAI({ apiKey });
+export const openai: OpenAI | null = apiKey ? new OpenAI({ apiKey }) : null;
