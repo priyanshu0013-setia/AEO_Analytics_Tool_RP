@@ -11,6 +11,9 @@ export interface LlmResult {
 }
 
 async function queryOpenAI(query: string): Promise<LlmResult> {
+  if (!openai) {
+    return { llm: "openai", response: "", error: "OPENAI_API_KEY is not configured" };
+  }
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -22,12 +25,15 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
     });
     return { llm: "openai", response: response.choices[0]?.message?.content ?? "" };
   } catch (err) {
-    console.error("OpenAI query failed:", err);
+    console.error("[openai] Error:", err);
     return { llm: "openai", response: "", error: String(err) };
   }
 }
 
 async function queryAnthropic(query: string): Promise<LlmResult> {
+  if (!anthropic) {
+    return { llm: "claude", response: "", error: "ANTHROPIC_API_KEY is not configured" };
+  }
   try {
     const message = await anthropic.messages.create({
       model: "claude-3-5-haiku-latest",
@@ -39,22 +45,22 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
     const text = block.type === "text" ? block.text : "";
     return { llm: "claude", response: text };
   } catch (err) {
-    console.error("Anthropic query failed:", err);
+    console.error("[claude] Error:", err);
     return { llm: "claude", response: "", error: String(err) };
   }
 }
 
 async function queryGemini(query: string): Promise<LlmResult> {
+  if (!ai) {
+    return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured" };
+  }
   try {
-    if (!ai) {
-      return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured" };
-    }
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await model.generateContent(SYSTEM_PROMPT + "\n\n" + query);
     const text = result.response.text();
     return { llm: "gemini", response: text };
   } catch (err) {
-    console.error("Gemini query failed:", err);
+    console.error("[gemini] Error:", err);
     return { llm: "gemini", response: "", error: String(err) };
   }
 }
