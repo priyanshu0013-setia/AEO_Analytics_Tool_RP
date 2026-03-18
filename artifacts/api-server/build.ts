@@ -13,11 +13,9 @@ async function build() {
       ...builtinModules,
       'pg',
       'express',
-      'express',
       'cors',
       'cookie-parser',
       'drizzle-orm',
-      '@workspace/db',
     ],
     sourcemap: true,
   });
