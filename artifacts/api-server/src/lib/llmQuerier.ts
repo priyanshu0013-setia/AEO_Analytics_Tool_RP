@@ -4,6 +4,10 @@ import { ai } from "@workspace/integrations-gemini-ai";
 
 const SYSTEM_PROMPT = `You are a helpful assistant. When answering questions about services, companies, or brands, provide a comprehensive response that includes relevant options and recommendations. Be specific and mention company or brand names when relevant.`;
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5-mini";
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+
 const MAX_RETRY_ATTEMPTS = 3;
 const INITIAL_DELAY_MS = 1000;
 const REQUEST_TIMEOUT_MS = 30_000;
@@ -78,7 +82,7 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
     const response = await retryWithBackoff(
       () => withTimeout(
         openai.chat.completions.create({
-          model: "gpt-5-mini",
+          model: OPENAI_MODEL,
           max_completion_tokens: 2048,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
@@ -104,7 +108,7 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
     const message = await retryWithBackoff(
       () => withTimeout(
         anthropic.messages.create({
-          model: "claude-haiku-4-5",
+          model: ANTHROPIC_MODEL,
           max_tokens: 2048,
           system: SYSTEM_PROMPT,
           messages: [{ role: "user", content: query }],
@@ -130,7 +134,7 @@ async function queryGemini(query: string): Promise<LlmResult> {
     const result = await retryWithBackoff(
       () => withTimeout(
         ai.models.generateContent({
-          model: "gemini-2.5-flash",
+          model: GEMINI_MODEL,
           contents: query,
           config: {
             systemInstruction: SYSTEM_PROMPT,
