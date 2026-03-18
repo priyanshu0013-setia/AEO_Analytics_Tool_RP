@@ -31,6 +31,8 @@ export function useCampaignStream(campaignId: number) {
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
 
+      let hadError = false;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -49,6 +51,7 @@ export function useCampaignStream(campaignId: number) {
               if (data.type === "progress" && data.message) {
                 setLogs((prev) => [...prev, data.message]);
               } else if (data.type === "error") {
+                hadError = true;
                 setStatus("error");
                 setErrorMsg(data.message || "Unknown error occurred.");
                 setLogs((prev) => [...prev, `[ERROR] ${data.message}`]);
@@ -62,7 +65,7 @@ export function useCampaignStream(campaignId: number) {
         }
       }
 
-      if (status !== "error") {
+      if (!hadError) {
         setStatus("done");
       }
     } catch (err: any) {

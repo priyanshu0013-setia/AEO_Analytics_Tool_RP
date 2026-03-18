@@ -2,13 +2,13 @@ import { Router, type IRouter } from "express";
 import { db, campaignsTable, llmResponsesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { CreateCampaignBody } from "@workspace/api-zod";
-import { generateQueryVariations } from "../lib/queryGenerator.js";
-import { queryAllLLMs } from "../lib/llmQuerier.js";
+import { generateQueryVariations } from "../lib/queryGenerator.ts";
+import { queryAllLLMs } from "../lib/llmQuerier.ts";
 import {
   detectBrandMentions,
   extractBrandName,
   extractRankPositions,
-} from "../lib/brandDetector.js";
+} from "../lib/brandDetector.ts";
 
 const router: IRouter = Router();
 
