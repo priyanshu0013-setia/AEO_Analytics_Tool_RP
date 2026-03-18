@@ -1,7 +1,9 @@
 import { ai } from "@workspace/integrations-gemini-ai";
+import { openai } from "@workspace/integrations-openai-ai-server";
+import { anthropic } from "@workspace/integrations-anthropic-ai";
 
-export async function generateQueryVariations(seedQuery: string, count = 7): Promise<string[]> {
-  const prompt = `You are an expert at understanding how users search for information using AI assistants like ChatGPT, Claude, and Gemini.
+const VARIATION_PROMPT = (seedQuery: string, count: number) =>
+  `You are an expert at understanding how users search for information using AI assistants like ChatGPT, Claude, and Gemini.
 
 Given the following seed query, generate ${count} distinct variations that someone might ask an AI assistant. 
 Make them sound natural, conversational, and varied in phrasing. Return ONLY the queries, one per line, no numbering or bullets.
@@ -10,23 +12,64 @@ Seed query: "${seedQuery}"
 
 Generate ${count} variations:`;
 
-  if (!ai) {
-    console.error("Query generation failed: GEMINI_API_KEY is not configured");
-    return [seedQuery];
+function parseVariations(content: string, count: number): string[] {
+  return content
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 5 && !l.startsWith("#"))
+    .slice(0, count);
+}
+
+export async function generateQueryVariations(seedQuery: string, count = 7): Promise<string[]> {
+  const prompt = VARIATION_PROMPT(seedQuery, count);
+
+  // Try Gemini first
+  if (ai) {
+    try {
+      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent(prompt);
+      const content = result.response.text();
+      const variations = parseVariations(content, count);
+      if (variations.length > 0) return variations;
+    } catch (err) {
+      console.error("Query generation via Gemini failed:", err);
+    }
   }
 
-  try {
-    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent(prompt);
-    const content = result.response.text();
-    const variations = content
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l.length > 5 && !l.startsWith("#"));
-
-    return variations.slice(0, count);
-  } catch (err) {
-    console.error("Query generation failed:", err);
-    return [seedQuery];
+  // Fallback to OpenAI
+  if (openai) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        max_completion_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      });
+      const content = response.choices[0]?.message?.content ?? "";
+      const variations = parseVariations(content, count);
+      if (variations.length > 0) return variations;
+    } catch (err) {
+      console.error("Query generation via OpenAI failed:", err);
+    }
   }
+
+  // Fallback to Anthropic
+  if (anthropic) {
+    try {
+      const message = await anthropic.messages.create({
+        model: "claude-3-5-haiku-latest",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      });
+      const block = message.content[0];
+      const content = block.type === "text" ? block.text : "";
+      const variations = parseVariations(content, count);
+      if (variations.length > 0) return variations;
+    } catch (err) {
+      console.error("Query generation via Anthropic failed:", err);
+    }
+  }
+
+  // Last resort: return the seed query as-is
+  console.error("Query generation failed: no LLM is configured or all failed.");
+  return [seedQuery];
 }

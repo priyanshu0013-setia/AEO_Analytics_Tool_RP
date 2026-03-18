@@ -123,10 +123,10 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
 }
 
 async function queryGemini(query: string): Promise<LlmResult> {
+  if (!ai) {
+    return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured or is invalid" };
+  }
   try {
-    if (!ai) {
-      return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured" };
-    }
     const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await retryWithBackoff(
       () => withTimeout(
