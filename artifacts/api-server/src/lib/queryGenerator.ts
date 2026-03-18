@@ -2,6 +2,10 @@ import { ai } from "@workspace/integrations-gemini-ai";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-5-mini";
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+
 const VARIATION_PROMPT = (seedQuery: string, count: number) =>
   `You are an expert at understanding how users search for information using AI assistants like ChatGPT, Claude, and Gemini.
 
@@ -26,9 +30,11 @@ export async function generateQueryVariations(seedQuery: string, count = 7): Pro
   // Try Gemini first
   if (ai) {
     try {
-      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent(prompt);
-      const content = result.response.text();
+      const result = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+      });
+      const content = result.text ?? "";
       const variations = parseVariations(content, count);
       if (variations.length > 0) return variations;
     } catch (err) {
@@ -40,7 +46,7 @@ export async function generateQueryVariations(seedQuery: string, count = 7): Pro
   if (openai) {
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: OPENAI_MODEL,
         max_completion_tokens: 1024,
         messages: [{ role: "user", content: prompt }],
       });
@@ -56,7 +62,7 @@ export async function generateQueryVariations(seedQuery: string, count = 7): Pro
   if (anthropic) {
     try {
       const message = await anthropic.messages.create({
-        model: "claude-3-5-haiku-latest",
+        model: ANTHROPIC_MODEL,
         max_tokens: 1024,
         messages: [{ role: "user", content: prompt }],
       });

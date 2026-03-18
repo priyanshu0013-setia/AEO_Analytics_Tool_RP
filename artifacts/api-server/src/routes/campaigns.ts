@@ -2,13 +2,13 @@ import { Router, type IRouter } from "express";
 import { db, campaignsTable, llmResponsesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { CreateCampaignBody } from "@workspace/api-zod";
-import { generateQueryVariations } from "../lib/queryGenerator.js";
-import { queryAllLLMs } from "../lib/llmQuerier.js";
+import { generateQueryVariations } from "../lib/queryGenerator.ts";
+import { queryAllLLMs } from "../lib/llmQuerier.ts";
 import {
   detectBrandMentions,
   extractBrandName,
   extractRankPositions,
-} from "../lib/brandDetector.js";
+} from "../lib/brandDetector.ts";
 
 const router: IRouter = Router();
 
@@ -36,7 +36,7 @@ router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [campaign] = await db.select().from(campaignsTable).where(eq(campaignsTable.id, id));
   if (!campaign) return res.status(404).json({ error: "Campaign not found" });
-  res.json(campaign);
+  return res.json(campaign);
 });
 
 router.delete("/:id", async (req, res) => {
@@ -264,7 +264,7 @@ router.get("/:id/report", async (req, res) => {
     })),
   }));
 
-  res.json({
+  return res.json({
     campaignId: id,
     totalQueries: uniqueQueries.size,
     totalResponses: responses.length,

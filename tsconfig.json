@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2022", "dom", "dom.iterable"]
+  },
+  "include": [
+    "lib/api-client-react/src/**/*.ts",
+    "lib/api-zod/src/**/*.ts",
+    "lib/db/src/**/*.ts",
+    "lib/integrations/integrations-anthropic-ai/src/**/*.ts",
+    "lib/integrations/integrations-gemini-ai/src/**/*.ts",
+    "lib/integrations/integrations-openai-ai-server/src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "**/node_modules"]
+}
