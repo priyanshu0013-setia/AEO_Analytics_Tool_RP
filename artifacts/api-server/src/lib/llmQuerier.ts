@@ -71,6 +71,9 @@ async function retryWithBackoff<T>(
 }
 
 async function queryOpenAI(query: string): Promise<LlmResult> {
+  if (!openai) {
+    return { llm: "openai", response: "", error: "OPENAI_API_KEY is not configured" };
+  }
   try {
     const response = await retryWithBackoff(
       () => withTimeout(
@@ -94,6 +97,9 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
 }
 
 async function queryAnthropic(query: string): Promise<LlmResult> {
+  if (!anthropic) {
+    return { llm: "claude", response: "", error: "ANTHROPIC_API_KEY is not configured" };
+  }
   try {
     const message = await retryWithBackoff(
       () => withTimeout(
@@ -121,7 +127,7 @@ async function queryGemini(query: string): Promise<LlmResult> {
     if (!ai) {
       return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured" };
     }
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await retryWithBackoff(
       () => withTimeout(
         model.generateContent(SYSTEM_PROMPT + "\n\n" + query),
