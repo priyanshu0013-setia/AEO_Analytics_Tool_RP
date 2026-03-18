@@ -78,10 +78,11 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
   if (!openai) {
     return { llm: "openai", response: "", error: "OPENAI_API_KEY is not configured" };
   }
+  const client = openai;
   try {
     const response = await retryWithBackoff(
       () => withTimeout(
-        openai.chat.completions.create({
+        client.chat.completions.create({
           model: OPENAI_MODEL,
           max_completion_tokens: 2048,
           messages: [
@@ -104,10 +105,11 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
   if (!anthropic) {
     return { llm: "claude", response: "", error: "ANTHROPIC_API_KEY is not configured" };
   }
+  const client = anthropic;
   try {
     const message = await retryWithBackoff(
       () => withTimeout(
-        anthropic.messages.create({
+        client.messages.create({
           model: ANTHROPIC_MODEL,
           max_tokens: 2048,
           system: SYSTEM_PROMPT,
@@ -130,10 +132,11 @@ async function queryGemini(query: string): Promise<LlmResult> {
   if (!ai) {
     return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured or is invalid" };
   }
+  const genai = ai;
   try {
     const result = await retryWithBackoff(
       () => withTimeout(
-        ai.models.generateContent({
+        genai.models.generateContent({
           model: GEMINI_MODEL,
           contents: query,
           config: {

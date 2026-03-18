@@ -26,7 +26,7 @@ function pct(v: number) {
 function downloadReport(campaign: { name: string; targetUrl: string }, report: {
   totalResponses: number;
   totalQueries: number;
-  brandStats: Array<{ brand: string; url: string; isTarget: boolean; mentions: number; shareOfVoice: number; avgRankPosition: number | null }>;
+  brandStats: Array<{ brand: string; url: string; isTarget: boolean; mentions: number; shareOfVoice: number; avgRankPosition?: number | null }>;
   llmVisibility: Array<{ llm: string; targetMentions: number; totalMentions: number; competitorBreakdown: Array<{ brand: string; mentions: number }> }>;
 }) {
   const date = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });

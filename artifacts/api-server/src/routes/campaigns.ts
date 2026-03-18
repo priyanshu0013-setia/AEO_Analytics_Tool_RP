@@ -36,7 +36,7 @@ router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [campaign] = await db.select().from(campaignsTable).where(eq(campaignsTable.id, id));
   if (!campaign) return res.status(404).json({ error: "Campaign not found" });
-  res.json(campaign);
+  return res.json(campaign);
 });
 
 router.delete("/:id", async (req, res) => {
@@ -264,7 +264,7 @@ router.get("/:id/report", async (req, res) => {
     })),
   }));
 
-  res.json({
+  return res.json({
     campaignId: id,
     totalQueries: uniqueQueries.size,
     totalResponses: responses.length,

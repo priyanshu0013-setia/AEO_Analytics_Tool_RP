@@ -45,6 +45,7 @@ const ChartContainer = React.forwardRef<
   () => `id-${Math.random().toString(36).slice(2)}`,
   [],
   )
+  const chartId = id ?? uniqueId;
 
   return (
     <ChartContext.Provider value={{ config }}>
