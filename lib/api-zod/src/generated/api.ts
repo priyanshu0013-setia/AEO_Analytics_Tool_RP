@@ -132,3 +132,16 @@ export const GetCampaignReportResponse = zod.object({
     }),
   ),
 });
+
+/**
+ * @summary Generate related search queries for a seed query
+ */
+export const GenerateRelatedQueriesBody = zod.object({
+  seedQuery: zod.string().min(1).max(500),
+});
+
+export const GenerateRelatedQueriesResponse = zod.object({
+  seed_query: zod.string(),
+  domain: zod.string(),
+  related_queries: zod.array(zod.string()),
+});

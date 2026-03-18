@@ -84,3 +84,13 @@ export interface AeoReport {
   brandStats: BrandMentionStat[];
   llmVisibility: LlmVisibility[];
 }
+
+export interface GenerateRelatedQueriesBody {
+  seedQuery: string;
+}
+
+export interface RelatedQueriesResult {
+  seed_query: string;
+  domain: string;
+  related_queries: string[];
+}

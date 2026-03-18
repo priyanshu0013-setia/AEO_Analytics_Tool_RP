@@ -21,8 +21,10 @@ import type {
   Campaign,
   CreateCampaignBody,
   ErrorResponse,
+  GenerateRelatedQueriesBody,
   HealthStatus,
   LlmResponse,
+  RelatedQueriesResult,
   SuccessResponse,
 } from "./api.schemas";
 
@@ -699,4 +701,67 @@ export function useGetCampaignReport<
   };
 
   return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Generate related search queries for a seed query
+ */
+export const generateRelatedQueriesUrl = () => {
+  return `/api/queries/related`;
+};
+
+export const generateRelatedQueries = async (
+  body: GenerateRelatedQueriesBody,
+  options?: RequestInit,
+): Promise<RelatedQueriesResult> => {
+  return customFetch<RelatedQueriesResult>(generateRelatedQueriesUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(body),
+  });
+};
+
+export type GenerateRelatedQueriesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateRelatedQueries>>
+>;
+export type GenerateRelatedQueriesMutationBody = BodyType<GenerateRelatedQueriesBody>;
+export type GenerateRelatedQueriesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Generate related search queries for a seed query
+ */
+export function useGenerateRelatedQueries<
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateRelatedQueries>>,
+    TError,
+    { data: GenerateRelatedQueriesBody },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generateRelatedQueries>>,
+  TError,
+  { data: GenerateRelatedQueriesBody },
+  TContext
+> {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {};
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateRelatedQueries>>,
+    { data: GenerateRelatedQueriesBody }
+  > = (props) => {
+    const { data } = props ?? {};
+    return generateRelatedQueries(data, requestOptions);
+  };
+
+  return useMutation<
+    Awaited<ReturnType<typeof generateRelatedQueries>>,
+    TError,
+    { data: GenerateRelatedQueriesBody },
+    TContext
+  >({ mutationFn, ...mutationOptions });
 }
