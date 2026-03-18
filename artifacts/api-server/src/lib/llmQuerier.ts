@@ -78,7 +78,7 @@ async function queryOpenAI(query: string): Promise<LlmResult> {
     const response = await retryWithBackoff(
       () => withTimeout(
         openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-mini",
           max_completion_tokens: 2048,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
@@ -104,7 +104,7 @@ async function queryAnthropic(query: string): Promise<LlmResult> {
     const message = await retryWithBackoff(
       () => withTimeout(
         anthropic.messages.create({
-          model: "claude-3-5-haiku-latest",
+          model: "claude-haiku-4-5",
           max_tokens: 2048,
           system: SYSTEM_PROMPT,
           messages: [{ role: "user", content: query }],
@@ -127,15 +127,20 @@ async function queryGemini(query: string): Promise<LlmResult> {
     return { llm: "gemini", response: "", error: "GEMINI_API_KEY is not configured or is invalid" };
   }
   try {
-    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await retryWithBackoff(
       () => withTimeout(
-        model.generateContent(SYSTEM_PROMPT + "\n\n" + query),
+        ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: query,
+          config: {
+            systemInstruction: SYSTEM_PROMPT,
+          },
+        }),
         REQUEST_TIMEOUT_MS
       ),
       "gemini"
     );
-    const text = result.response.text();
+    const text = result.text ?? "";
     return { llm: "gemini", response: text };
   } catch (err) {
     console.error("[gemini] Error:", err);

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 const rawKey = process.env.GEMINI_API_KEY;
 
@@ -14,4 +14,4 @@ if (!rawKey) {
   console.warn("GEMINI_API_KEY appears to be invalid (should start with 'AIza') - Gemini queries will be skipped.");
 }
 
-export const ai = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+export const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;

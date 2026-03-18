@@ -26,9 +26,11 @@ export async function generateQueryVariations(seedQuery: string, count = 7): Pro
   // Try Gemini first
   if (ai) {
     try {
-      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent(prompt);
-      const content = result.response.text();
+      const result = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+      });
+      const content = result.text ?? "";
       const variations = parseVariations(content, count);
       if (variations.length > 0) return variations;
     } catch (err) {
@@ -40,7 +42,7 @@ export async function generateQueryVariations(seedQuery: string, count = 7): Pro
   if (openai) {
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini",
         max_completion_tokens: 1024,
         messages: [{ role: "user", content: prompt }],
       });
@@ -56,7 +58,7 @@ export async function generateQueryVariations(seedQuery: string, count = 7): Pro
   if (anthropic) {
     try {
       const message = await anthropic.messages.create({
-        model: "claude-3-5-haiku-latest",
+        model: "claude-haiku-4-5",
         max_tokens: 1024,
         messages: [{ role: "user", content: prompt }],
       });
