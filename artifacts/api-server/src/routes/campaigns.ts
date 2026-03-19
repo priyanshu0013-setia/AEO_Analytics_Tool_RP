@@ -9,6 +9,10 @@ import {
   extractBrandName,
   extractRankPositions,
 } from "../lib/brandDetector.ts";
+import {
+  calculateAverageRankPosition,
+  MISSING_RANK_PENALTY,
+} from "../lib/rankCalculator.ts";
 
 const router: IRouter = Router();
 
@@ -183,28 +187,42 @@ router.get("/:id/report", async (req, res) => {
     });
   }
 
+  // Cast responses to a well-typed shape. The underlying DB query returns
+  // a structurally-correct array; we just need to help TypeScript when
+  // the DB dependency types are not fully resolved in this TS project.
+  type LlmResponseRow = { query: string; llm: string; responseText: string; campaignId: number };
+  const typedResponses = responses as LlmResponseRow[];
+
   const targetUrl = campaign.targetUrl;
   const allUrls = [targetUrl, ...(campaign.competitorUrls as string[])];
-  const uniqueQueries = new Set(responses.map((r) => r.query));
+  const uniqueQueries = new Set(typedResponses.map((r) => r.query));
+  const seedQueries = (campaign.seedQueries as string[]) ?? [];
 
-  const brandMentionCounts: Record<string, { url: string; mentions: number; ranks: number[]; isTarget: boolean }> = {};
+  const brandMentionCounts: Record<string, {
+    url: string;
+    mentions: number;
+    isTarget: boolean;
+    // query → best (lowest) rank found across all LLM responses for that query.
+    // A rank of null means the brand was mentioned but not inside a ranked list.
+    queryRanks: Map<string, number | null>;
+  }> = {};
   for (const url of allUrls) {
     const brand = extractBrandName(url);
     brandMentionCounts[brand] = {
       url,
       mentions: 0,
-      ranks: [],
       isTarget: url === targetUrl,
+      queryRanks: new Map(),
     };
   }
 
   const llmStats: Record<string, { targetMentions: number; totalMentions: number; competitors: Record<string, number> }> = {};
-  const llms = [...new Set(responses.map((r) => r.llm))];
+  const llms = [...new Set(typedResponses.map((r) => r.llm))];
   for (const llm of llms) {
     llmStats[llm] = { targetMentions: 0, totalMentions: 0, competitors: {} };
   }
 
-  for (const resp of responses) {
+  for (const resp of typedResponses) {
     const mentions = detectBrandMentions(resp.responseText, targetUrl, campaign.competitorUrls as string[]);
 
     for (const mention of mentions) {
@@ -213,14 +231,28 @@ router.get("/:id/report", async (req, res) => {
         brandMentionCounts[brand] = {
           url: mention.url,
           mentions: 0,
-          ranks: [],
           isTarget: mention.url === targetUrl,
+          queryRanks: new Map(),
         };
       }
       brandMentionCounts[brand].mentions += 1;
 
+      // Collect rank positions from structured lists in this response.
+      // If the brand appears in a numbered/bulleted list, we record the
+      // position; otherwise we track a null (mentioned, rank unknown).
       const rankPositions = extractRankPositions(resp.responseText, brand);
-      brandMentionCounts[brand].ranks.push(...rankPositions);
+      const existing = brandMentionCounts[brand].queryRanks.get(resp.query);
+      if (rankPositions.length > 0) {
+        const bestRank = Math.min(...rankPositions);
+        // Keep the best (lowest) rank seen for this query across all LLMs
+        brandMentionCounts[brand].queryRanks.set(
+          resp.query,
+          existing != null ? Math.min(existing, bestRank) : bestRank
+        );
+      } else if (existing === undefined) {
+        // Mentioned but not in a ranked list → mark as present, rank unknown
+        brandMentionCounts[brand].queryRanks.set(resp.query, null);
+      }
 
       if (llmStats[resp.llm]) {
         llmStats[resp.llm].totalMentions += 1;
@@ -235,18 +267,38 @@ router.get("/:id/report", async (req, res) => {
 
   const totalMentions = Object.values(brandMentionCounts).reduce((s, b) => s + b.mentions, 0);
 
-  const brandStats = Object.entries(brandMentionCounts).map(([brand, data]) => ({
-    brand,
-    url: data.url,
-    mentions: data.mentions,
-    totalMentions,
-    shareOfVoice: totalMentions > 0 ? Math.round((data.mentions / totalMentions) * 1000) / 10 : 0,
-    avgRankPosition:
-      data.ranks.length > 0
-        ? Math.round((data.ranks.reduce((a, b) => a + b, 0) / data.ranks.length) * 10) / 10
-        : null,
-    isTarget: data.isTarget,
-  }));
+  const brandStats = Object.entries(brandMentionCounts).map(([brand, data]) => {
+    // Build one QueryRankEntry per unique query so the weighted calculator
+    // can penalise queries where the brand was absent.
+    const queryRankEntries = (Array.from(uniqueQueries) as string[]).map((query) => {
+      const rankValue = data.queryRanks.get(query);
+      if (rankValue === undefined) {
+        // Brand was not found for this query → apply missing-rank penalty
+        return { query, rank: null };
+      }
+      // Brand was mentioned; use the list position if available, otherwise 1
+      return { query, rank: rankValue ?? 1 };
+    });
+
+    const rankResult = calculateAverageRankPosition(
+      queryRankEntries,
+      seedQueries,
+      MISSING_RANK_PENALTY
+    );
+
+    return {
+      brand,
+      url: data.url,
+      mentions: data.mentions,
+      totalMentions,
+      shareOfVoice: totalMentions > 0 ? Math.round((data.mentions / totalMentions) * 1000) / 10 : 0,
+      // avgRankPosition uses the weighted metric for backward-compatibility;
+      // null is returned only when no queries were analysed.
+      avgRankPosition: uniqueQueries.size > 0 ? rankResult.weighted_average_rank_position : null,
+      rankDetails: rankResult,
+      isTarget: data.isTarget,
+    };
+  });
 
   brandStats.sort((a, b) => b.mentions - a.mentions);
 
@@ -267,7 +319,7 @@ router.get("/:id/report", async (req, res) => {
   return res.json({
     campaignId: id,
     totalQueries: uniqueQueries.size,
-    totalResponses: responses.length,
+    totalResponses: typedResponses.length,
     brandStats,
     llmVisibility,
   });
