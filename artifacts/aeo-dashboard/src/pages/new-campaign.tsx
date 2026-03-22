@@ -279,7 +279,7 @@ export function NewCampaign() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-slate-200 flex justify-end gap-4">
+        <div className="mt-8 pt-8 border-t border-slate-200 flex flex-col-reverse sm:flex-row justify-end gap-4">
           <Link href="/">
             <Button type="button" variant="ghost">Cancel</Button>
           </Link>

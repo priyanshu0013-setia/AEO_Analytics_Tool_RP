@@ -292,7 +292,7 @@ export function CampaignReport() {
         title={`${campaign.name} — AEO Report`}
         description="Brand visibility across OpenAI GPT, Anthropic Claude, and Google Gemini."
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={() => downloadReport(campaign, report)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold shadow-md shadow-indigo-600/25 transition-all"
@@ -418,6 +418,7 @@ export function CampaignReport() {
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
               <h3 className="text-base font-bold text-slate-800">Brand Breakdown</h3>
             </div>
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100">
@@ -463,6 +464,7 @@ export function CampaignReport() {
                 })}
               </tbody>
             </table>
+            </div>
           </Card>
         </div>
       </section>
@@ -620,6 +622,7 @@ export function CampaignReport() {
           Full Analytics Table
         </h2>
         <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -662,6 +665,7 @@ export function CampaignReport() {
               })}
             </tbody>
           </table>
+          </div>
         </Card>
       </section>
     </motion.div>

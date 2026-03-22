@@ -45,7 +45,7 @@ export function RunCampaign() {
         
         <div 
           ref={logContainerRef}
-          className="h-[500px] overflow-y-auto p-6 font-mono text-sm text-slate-300 leading-relaxed bg-[#0a0f1c]"
+          className="h-[300px] sm:h-[500px] overflow-y-auto p-6 font-mono text-sm text-slate-300 leading-relaxed bg-[#0a0f1c]"
         >
           <div className="text-emerald-400 mb-4">$ initializing AEO engine...</div>
           <div className="text-slate-500 mb-4">Target: {campaign.targetUrl} | Competitors: {campaign.competitorUrls.length}</div>
