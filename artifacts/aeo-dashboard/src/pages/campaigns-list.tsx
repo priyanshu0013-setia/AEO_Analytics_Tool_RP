@@ -46,7 +46,7 @@ export function CampaignsList() {
         </Link>
       </PageHeader>
 
-      <div className="mb-8 flex items-center bg-white p-2 rounded-2xl shadow-sm border border-slate-200 max-w-md">
+      <div className="mb-8 flex items-center bg-white p-2 rounded-2xl shadow-sm border border-slate-200 w-full sm:max-w-md">
         <Search className="w-5 h-5 text-slate-400 ml-3 mr-2" />
         <input 
           type="text" 
@@ -58,7 +58,7 @@ export function CampaignsList() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center p-16 text-center border-dashed border-2 bg-slate-50/50">
+        <Card className="flex flex-col items-center justify-center p-8 sm:p-16 text-center border-dashed border-2 bg-slate-50/50">
           <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
             <LayoutDashboard className="w-8 h-8 text-slate-400" />
           </div>
@@ -92,7 +92,7 @@ export function CampaignsList() {
                     <button 
                       onClick={() => handleDelete(campaign.id)}
                       disabled={isDeleting}
-                      className="text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      className="text-slate-400 hover:text-red-500 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
